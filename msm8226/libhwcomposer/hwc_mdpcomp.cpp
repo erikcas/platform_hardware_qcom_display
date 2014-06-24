@@ -127,23 +127,6 @@ bool MDPComp::init(hwc_context_t *ctx) {
         sEnableMixedMode = false;
     }
 
-    if(property_get("debug.mdpcomp.logs", property, NULL) > 0) {
-        if(atoi(property) != 0)
-            sDebugLogs = true;
-    }
-
-    // We read from drivers if panel supports partial updating
-    // and we enable partial update computations if supported.
-    // Keeping this property to disable partial update for
-    // debugging by setting below property to 0 & only 0.
-    property_get("persist.hwc.partialupdate", property, "-1");
-    if((atoi(property) != 0) &&
-        qdutils::MDPVersion::getInstance().isPartialUpdateEnabled()) {
-            sEnablePartialFrameUpdate = true;
-    }
-    ALOGE_IF(isDebug(), "%s: Partial Update applicable?: %d",__FUNCTION__,
-                                                    sEnablePartialFrameUpdate);
-
     sMaxPipesPerMixer = MAX_PIPES_PER_MIXER;
     if(property_get("debug.mdpcomp.maxpermixer", property, "-1") > 0) {
         int val = atoi(property);
