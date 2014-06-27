@@ -80,19 +80,7 @@ public:
     static bool validateAndSet(GenericPipe* pipeArray[], const int& count,
             const int& fbFd);
 private:
-    /* set Closed pipe */
-    bool setClosed();
-
     int mDpy;
-    //Whether we will do downscale opt. This is just a request. If the frame is
-    //not a candidate, we might not do it.
-    bool mRotDownscaleOpt;
-    /* Pipe open or closed */
-    enum ePipeState {
-        CLOSED,
-        OPEN
-    };
-    ePipeState pipeState;
     Ctrl *mCtrl;
     Data *mData;
 };

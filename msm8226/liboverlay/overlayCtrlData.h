@@ -77,8 +77,6 @@ public:
     /* retrieve crop data */
     utils::Dim getCrop() const;
     utils::Dim getPosition() const;
-    /* Set downscale */
-    void setDownscale(int dscale_factor);
     /* Update the src format based on rotator's dest */
     void updateSrcFormat(const uint32_t& rotDstFormat);
     /* dump the state of the object */
