@@ -1005,6 +1005,18 @@ bool MDPComp::isLoadBasedCompDoable(hwc_context_t *ctx) {
     return true;
 }
 
+bool MDPComp::canPartialUpdate(hwc_context_t *ctx,
+        hwc_display_contents_1_t* list){
+    if(!qdutils::MDPVersion::getInstance().isPartialUpdateEnabled() ||
+            isSkipPresent(ctx, mDpy) || (list->flags & HWC_GEOMETRY_CHANGED) ||
+            mDpy ) {
+        return false;
+    }
+    if(ctx->listStats[mDpy].secureUI)
+        return false;
+    return true;
+}
+
 bool MDPComp::tryVideoOnly(hwc_context_t *ctx,
         hwc_display_contents_1_t* list) {
     const bool secureOnly = true;
