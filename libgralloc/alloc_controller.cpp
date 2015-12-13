@@ -54,8 +54,10 @@ using namespace qdutils;
 
 ANDROID_SINGLETON_STATIC_INSTANCE(AdrenoMemInfo);
 
+#ifdef BOARD_HAS_VENUS_UBWC
 static void getUBwcWidthAndHeight(int, int, int, int&, int&);
 static unsigned int getUBwcSize(int, int, int, const int, const int);
+#endif
 
 //Common functions
 static bool canFallback(int usage, bool triedSystem)
@@ -102,7 +104,9 @@ AdrenoMemInfo::AdrenoMemInfo()
     LINK_adreno_compute_padding = NULL;
     LINK_adreno_isMacroTilingSupportedByGpu = NULL;
     LINK_adreno_compute_compressedfmt_aligned_width_and_height = NULL;
+#ifdef BOARD_HAS_VENUS_UBWC
     LINK_adreno_isUBWCSupportedByGpu = NULL;
+#endif
     LINK_adreno_get_gpu_pixel_alignment = NULL;
 
     libadreno_utils = ::dlopen("libadreno_utils.so", RTLD_NOW);
@@ -116,8 +120,10 @@ AdrenoMemInfo::AdrenoMemInfo()
         *(void **)&LINK_adreno_compute_compressedfmt_aligned_width_and_height =
                 ::dlsym(libadreno_utils,
                         "compute_compressedfmt_aligned_width_and_height");
+#ifdef BOARD_HAS_VENUS_UBWC
         *(void **)&LINK_adreno_isUBWCSupportedByGpu =
                 ::dlsym(libadreno_utils, "isUBWCSupportedByGpu");
+#endif
         *(void **)&LINK_adreno_get_gpu_pixel_alignment =
                 ::dlsym(libadreno_utils, "get_gpu_pixel_alignment");
     }
@@ -177,10 +183,12 @@ void AdrenoMemInfo::getAlignedWidthAndHeight(int width, int height, int format,
         return;
     }
 
+#ifdef BOARD_HAS_VENUS_UBWC
     if (isUBwcEnabled(format, usage)) {
         getUBwcWidthAndHeight(width, height, format, aligned_w, aligned_h);
         return;
     }
+#endif
 
     aligned_w = width;
     aligned_h = height;
@@ -323,6 +331,7 @@ void AdrenoMemInfo::getGpuAlignedWidthHeight(int width, int height, int format,
    }
 }
 
+#ifdef BOARD_HAS_VENUS_UBWC
 int AdrenoMemInfo::isUBWCSupportedByGPU(int format)
 {
     if (libadreno_utils) {
@@ -333,6 +342,7 @@ int AdrenoMemInfo::isUBWCSupportedByGPU(int format)
     }
     return 0;
 }
+#endif
 
 ADRENOPIXELFORMAT AdrenoMemInfo::getGpuPixelFormat(int hal_format)
 {
@@ -343,8 +353,10 @@ ADRENOPIXELFORMAT AdrenoMemInfo::getGpuPixelFormat(int hal_format)
             return ADRENO_PIXELFORMAT_B5G6R5;
         case HAL_PIXEL_FORMAT_NV12_ENCODEABLE:
         case HAL_PIXEL_FORMAT_YCbCr_420_SP_VENUS:
+#ifdef BOARD_HAS_VENUS_UBWC
         case HAL_PIXEL_FORMAT_YCbCr_420_SP_VENUS_UBWC:
             return ADRENO_PIXELFORMAT_NV12;
+#endif
         default:
             ALOGE("%s: No map for format: 0x%x", __FUNCTION__, hal_format);
             break;
@@ -495,9 +507,11 @@ bool isMacroTileEnabled(int format, int usage)
 unsigned int getSize(int format, int width, int height, int usage,
         const int alignedw, const int alignedh) {
 
+#ifdef BOARD_HAS_VENUS_UBWC
     if (isUBwcEnabled(format, usage)) {
         return getUBwcSize(width, height, format, alignedw, alignedh);
     }
+#endif
 
     unsigned int size = 0;
     switch (format) {
@@ -778,6 +792,7 @@ void free_buffer(private_handle_t *hnd)
 
 }
 
+#ifdef BOARD_HAS_VENUS_UBWC
 // UBWC helper functions
 static bool isUBwcFormat(int format)
 {
@@ -917,3 +932,4 @@ static unsigned int getUBwcSize(int width, int height, int format,
     }
     return size;
 }
+#endif
